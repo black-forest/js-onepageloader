@@ -21,13 +21,16 @@ var onePageLoader = function () {
 		}
 	};
 
+
 	var requests = 1,
 		scrollToSpan,
 		move;
 
+
 	function _setDefaultOption() {
 		return _option;
 	}
+
 
 	function _setOption(option) {
 		for (var prop in option) {
@@ -36,6 +39,7 @@ var onePageLoader = function () {
 		onePageLoader.scripts ? true : onePageLoader.scripts = [];
 		onePageLoader.css ? true : onePageLoader.css = [];
 	}
+
 
 	function _each(obj, callback) {
 		if (!obj.length) {
@@ -49,6 +53,7 @@ var onePageLoader = function () {
 		}
 		return obj;
 	}
+
 
 	function _setSites(obj, pos) {
 		if (!pos) pos = 'main';
@@ -87,6 +92,7 @@ var onePageLoader = function () {
 		return false;
 	}
 
+
 	function _parseSites(obj) {
 		var sites = [];
 		onePageLoader.each(obj, function (i, el) {
@@ -99,6 +105,7 @@ var onePageLoader = function () {
 		});
 		return sites;
 	}
+
 
 	function _getSites() {
 		var arr,
@@ -125,10 +132,11 @@ var onePageLoader = function () {
 		onePageLoader.sites = obj;
 	}
 
+
 	function _addContainer(i, el) {
 		if (!el.hash) {
 			var body = document.querySelector(onePageLoader.option.body),
-				siteId = onePageLoader.option.siteName + '_' + el.innerHTML.replace(' ', '_').toLowerCase(),
+				siteId = _resolveString(onePageLoader.option.siteName + '_' + el.innerHTML.replace(' ', '_').toLowerCase()),
 				site = document.createElement(onePageLoader.option.siteElement);
 			el.siteId = siteId;
 			site.id = siteId;
@@ -152,6 +160,26 @@ var onePageLoader = function () {
 		}
 	}
 
+
+	function _resolveString(string) {
+		var areaReplace = {
+			0: [/Ü/g, 'Ue'],
+			1: [/ü/g, 'ue'],
+			2: [/Ö/g, 'Oe'],
+			3: [/ö/g, 'oe'],
+			4: [/Ä/g, 'Ae'],
+			5: [/ä/g, 'ae'],
+			6: [/ß/g, 'ss']
+		};
+
+		for (var prop in areaReplace) {
+			string = string.replace(areaReplace[prop][0], areaReplace[prop][1]);
+		}
+
+		return string;
+	}
+
+
 	function _handleDisplayBefore(body, site, siteId) {
 		if (onePageLoader.option.displayBefore) {
 			var firstEl = document.querySelector(onePageLoader.option.body + ' ' + onePageLoader.option.siteElement),
@@ -173,6 +201,7 @@ var onePageLoader = function () {
 		}
 	}
 
+
 	function _handleByTagA(el) {
 		_loadSite(el, function (el, content, complete) {
 			if (complete) _loadScripts();
@@ -182,6 +211,7 @@ var onePageLoader = function () {
 			append.appendChild(content);
 		});
 	}
+
 
 	function _handleByTagSpan(el, siteId, body) {
 		el.href = '#' + siteId;
@@ -194,12 +224,14 @@ var onePageLoader = function () {
 		if (onePageLoader.smoothScroll) scrollToSpan = el;
 	}
 
+
 	function _viewInSection() {
 		/** TODO: ie 8 event fix **/
 		_bind(window, 'scroll', function () {
 			_setActive(window, document.querySelectorAll('.' + onePageLoader.option.siteName + '_container'));
 		});
 	}
+
 
 	function _setActive(watch, elements) {
 		/** TODO: ie 8 active fix **/
@@ -233,6 +265,7 @@ var onePageLoader = function () {
 		});
 	}
 
+
 	function _isView(watch, el) {
 		/** TODO: fix FF 3.6 **/
 		var waScY = watch.scrollY || watch.screenTop,
@@ -246,6 +279,7 @@ var onePageLoader = function () {
 
 		return elScY <= waScY && elHeight + elScY >= waScY;
 	}
+
 
 	function _loadScripts() {
 		var scriptsLength = onePageLoader.scripts.length;
@@ -295,11 +329,13 @@ var onePageLoader = function () {
 		});
 	}
 
+
 	function _lastSectionMinHeight() {
 		var el = document.querySelectorAll('.' + onePageLoader.option.siteName + '_container');
 		var height = window.innerHeight || window.screen.availHeight;
 		el[el.length - 1].style.minHeight = height + onePageLoader.option.scrollOffset + 'px';
 	}
+
 
 	function _scrollToActivePage() {
 		if (scrollToSpan) {
@@ -312,6 +348,7 @@ var onePageLoader = function () {
 		}
 	}
 
+
 	function _initSmoothScroll(el) {
 		_bind(el, 'click', function (event) {
 			window.smoothScroll(
@@ -321,6 +358,7 @@ var onePageLoader = function () {
 				onePageLoader.option.scrollEasing);
 		}, false);
 	}
+
 
 	function _speed(duration) {
 		switch (duration) {
@@ -336,6 +374,7 @@ var onePageLoader = function () {
 		}
 		return duration;
 	}
+
 
 	function _bind(el, type, callback, erase) {
 		if (el.attachEvent) {
@@ -356,6 +395,7 @@ var onePageLoader = function () {
 			}, wantsUntrusted);
 		}
 	}
+
 
 	function _loadSite(el, callback) {
 		var request;
@@ -388,6 +428,7 @@ var onePageLoader = function () {
 		request.send();
 	}
 
+
 	function _parseScript(obj) {
 		var loaded = false,
 			type;
@@ -410,6 +451,7 @@ var onePageLoader = function () {
 		return false;
 	}
 
+
 	function _load() {
 		_each(onePageLoader.sites, function (i, el) {
 			if (!el.loaded) {
@@ -419,10 +461,12 @@ var onePageLoader = function () {
 		});
 	}
 
+
 	function _init() {
 		if (!onePageLoader.sites) _getSites();
 		_load();
 	}
+
 
 	return {
 		option: _setDefaultOption(),
@@ -431,15 +475,21 @@ var onePageLoader = function () {
 			_setSites(obj);
 			_init();
 		},
+
+
 		each: function (obj, callback) {
 			_each(obj, function (i, el) {
 				callback.call(el, i, el);
 			});
 			return obj;
 		},
+
+
 		complete: function () {
 			onePageLoader.option.complete();
 		},
+
+
 		bind: function (el, type, callback, erase) {
 			_bind(el, type, callback, erase);
 			callback.call(callback, callback)
