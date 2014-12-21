@@ -313,7 +313,7 @@ var onePageLoader = function () {
 									if (onePageLoader.option.scrollToAcivePage) _scrollToActivePage();
 									onePageLoader.complete();
 									if (onePageLoader.css.length > 0) {
-										_each(onePageLoader.css, function (i, el) {console.log(document.querySelectorAll('link[href="'+el.href+'"]'));
+										_each(onePageLoader.css, function (i, el) {
 											if (document.querySelectorAll('link[href="'+el.href+'"]').length == 0) {
 												var css = document.createElement('link');
 												css.rel = el.rel;
