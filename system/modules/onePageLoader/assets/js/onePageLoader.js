@@ -211,6 +211,7 @@ var onePageLoader = function () {
 			var append = document.querySelector(el.onePage.href);
 			(onePageLoader.option.smoothScroll ? _initSmoothScroll(el) : false);
 			append.appendChild(content);
+			el.onePage.section = append;
 		});
 	}
 
@@ -224,6 +225,7 @@ var onePageLoader = function () {
 		move = body.children[0];
 		move.parentNode.removeChild(move);
 		insert.appendChild(move);
+		el.onePage.section = insert;
 		if (onePageLoader.smoothScroll) scrollToSpan = el;
 	}
 
