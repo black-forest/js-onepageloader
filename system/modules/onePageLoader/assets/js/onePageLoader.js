@@ -144,9 +144,11 @@ var onePageLoader = function () {
 			body.appendChild(site);
 			switch (el.tagName) {
 				case 'SPAN':
+					el.onePage = {};
 					_handleByTagSpan(el, siteId, body);
 					break;
 				case 'A':
+					el.onePage = {};
 					_handleByTagA(el);
 					break;
 				default :
@@ -205,8 +207,8 @@ var onePageLoader = function () {
 	function _handleByTagA(el) {
 		_loadSite(el, function (el, content, complete) {
 			if (complete) _loadScripts();
-			el.href = '#' + el.siteId;
-			var append = document.querySelector(el.hash);
+			el.onePage.href = '#' + el.siteId;
+			var append = document.querySelector(el.onePage.href);
 			(onePageLoader.option.smoothScroll ? _initSmoothScroll(el) : false);
 			append.appendChild(content);
 		});
@@ -214,7 +216,8 @@ var onePageLoader = function () {
 
 
 	function _handleByTagSpan(el, siteId, body) {
-		el.href = '#' + siteId;
+		el.href = location.href;
+		el.onePage.href = '#' + siteId;
 		el.hash = '#' + siteId;
 		(onePageLoader.option.smoothScroll ? _initSmoothScroll(el) : false);
 		var insert = document.getElementById(siteId);
@@ -238,7 +241,7 @@ var onePageLoader = function () {
 		var links = onePageLoader.sites;
 		_each(elements, function (i, el) {
 			_each(links, function (iLink, link) {
-				if (link.href.search(el.id) > -1) {
+				if (link.onePage.href.search(el.id) > -1) {
 					if (_isView(watch, el)) {
 						if (el.className.search('active') < 0) {
 							el.className += ' active';
@@ -342,7 +345,7 @@ var onePageLoader = function () {
 	function _scrollToActivePage() {
 		if (scrollToSpan) {
 			window.smoothScroll(
-				document.querySelector(scrollToSpan.hash),
+				document.querySelector(scrollToSpan.onePage.href),
 				_speed(onePageLoader.option.scrollDuration),
 				onePageLoader.option.scrollOffset,
 				onePageLoader.option.scrollEasing
@@ -354,7 +357,7 @@ var onePageLoader = function () {
 	function _initSmoothScroll(el) {
 		_bind(el, 'click', function (event) {
 			window.smoothScroll(
-				document.querySelector(el.hash),
+				document.querySelector(el.onePage.href),
 				_speed(onePageLoader.option.scrollDuration),
 				onePageLoader.option.scrollOffset,
 				onePageLoader.option.scrollEasing);
