@@ -13,6 +13,7 @@ $GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/onePageLoader/assets/js/easing.min
 			onePageLoader.init(el, {
 				scrollOffset: -100,
 				watchOffsetY: 100,
+				//activateAnalytics: true,
 				complete: function () {
 					console.log('completeTMP');
 				}

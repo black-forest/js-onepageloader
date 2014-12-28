@@ -17,6 +17,7 @@ var onePageLoader = function () {
         watchOffsetY: 0,
         minHeightLastSection: true,
         scrollToAcivePage: true,
+		activateAnalytics: false,
         complete: function () {
         }
     };
