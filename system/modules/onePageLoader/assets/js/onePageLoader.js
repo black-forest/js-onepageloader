@@ -1,26 +1,48 @@
 var onePageLoader = function () {
-    var _option = {
-        siteName: 'site',
-        siteElement: 'section',
-        smoothScroll: true,
-        scrollDuration: 2000,
-        scrollOffset: 0,
-        body: '#main',
-        displayBefore: true, /** display Sites before if this without Sites **/
-        activePage: '', /** active Page prop **/
-        scrollEasing: 'easeInOutQuint', /** easing for Smooth Scroll **/
-        mainSites: '', /** add main Sites **/
-        sitesBefore: '', /** add Sites before **/ /** TODO: add Sites Before **/
-        sitesAfter: '', /** add Sites after **/ /** TODO: add Sites After **/
-        inViewSection: '', /** TODO: inView Section **/
-        outViewSection: '', /** TODO: outView Section **/
-        watchOffsetY: 0,
-        minHeightLastSection: true,
-        scrollToAcivePage: true,
+	var _option = {
+		siteName: 'site',
+		siteElement: 'section',
+		smoothScroll: true,
+		scrollDuration: 2000,
+		scrollOffset: 0,
+		body: '#main',
+		displayBefore: true, /** display Sites before if this without Sites **/
+		activePage: '', /** active Page prop **/
+		scrollEasing: 'easeInOutQuint', /** easing for Smooth Scroll **/
+		mainSites: '', /** add main Sites **/
+		sitesBefore: '', /** add Sites before **/ /** TODO: add Sites Before **/
+		sitesAfter: '', /** add Sites after **/ /** TODO: add Sites After **/
+		inViewSection: '', /** TODO: inView Section **/
+		outViewSection: '', /** TODO: outView Section **/
+		watchOffsetY: 0,
+		minHeightLastSection: true,
+		scrollToAcivePage: true,
 		activateAnalytics: false,
-        complete: function () {
-        }
-    };
+		analyticMethods: {
+			timeOut: 1500, /** the time the user in the parting guests want to push the analysis code **/
+			ga: {
+				name: 'Google Analytics',
+				object: '_gaq',
+				track: function (page) {
+					if (window[_option.analyticMethods.ga.object] != undefined) {
+						window[_option.analyticMethods.ga.object].push(['_trackPageview', page]);
+					}
+				}
+
+			},
+			piwik: {
+				name: 'PIWIK Analytics',
+				object: 'piwikTracker',
+				track: function (page) {
+					if (window[_option.analyticMethods.piwik.object] != undefined) {
+						window[_option.analyticMethods.piwik.object].trackPageView(page);
+					}
+				}
+			}
+		},
+		complete: function () {
+		}
+	};
 
 
 	var requests = 1,
