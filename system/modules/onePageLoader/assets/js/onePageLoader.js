@@ -19,6 +19,7 @@ var onePageLoader = function () {
 		scrollToAcivePage: true,
 		activateAnalytics: false,
 		analyticMethods: {
+			pushPageAs: 'href', /** or hash **/
 			timeOut: 1500, /** the time the user in the parting guests want to push the analysis code **/
 			ga: {
 				name: 'Google Analytics',
@@ -372,15 +373,25 @@ var onePageLoader = function () {
 			}
 		};
 
+		var getPage = function (el) {
+
+			if (_option.analyticMethods.pushPageAs == 'hash') {
+				return el.onePage.href;
+			}
+
+			var page = el.href.split('/');
+			page = page.slice(3, page.length).join('/');
+
+			return page;
+		};
+
 		var control = function () {
 			_each(onePageLoader.sites, function (i, el) {
 				if (_isView(window, el.onePage.section) && el.href != lastPush) {
 					window.setTimeout(function () {
 						if (_isView(window, el.onePage.section) && el.href != lastPush) {
 							lastPush = el.href;
-							var page = el.href.split('/');
-							page = page.slice(3, page.length).join('/');
-							track(page);
+							track(getPage(el));
 						}
 					}, _option.analyticMethods.timeOut);
 				}
