@@ -17,6 +17,30 @@ var onePageLoader = function () {
 		watchOffsetY: 0,
 		minHeightLastSection: true,
 		scrollToAcivePage: true,
+		activateAnalytics: false,
+		analyticMethods: {
+			pushPageAs: 'href', /** or hash **/
+			timeOut: 1500, /** the time the user in the parting guests want to push the analysis code **/
+			ga: {
+				name: 'Google Analytics',
+				object: '_gaq',
+				track: function (page) {
+					if (window[_option.analyticMethods.ga.object] != undefined) {
+						window[_option.analyticMethods.ga.object].push(['_trackPageview', page]);
+					}
+				}
+
+			},
+			piwik: {
+				name: 'PIWIK Analytics',
+				object: 'piwikTracker',
+				track: function (page) {
+					if (window[_option.analyticMethods.piwik.object] != undefined) {
+						window[_option.analyticMethods.piwik.object].trackPageView(page);
+					}
+				}
+			}
+		},
 		complete: function () {
 		}
 	};
@@ -144,9 +168,11 @@ var onePageLoader = function () {
 			body.appendChild(site);
 			switch (el.tagName) {
 				case 'SPAN':
+					el.onePage = {};
 					_handleByTagSpan(el, siteId, body);
 					break;
 				case 'A':
+					el.onePage = {};
 					_handleByTagA(el);
 					break;
 				default :
@@ -205,22 +231,25 @@ var onePageLoader = function () {
 	function _handleByTagA(el) {
 		_loadSite(el, function (el, content, complete) {
 			if (complete) _loadScripts();
-			el.href = '#' + el.siteId;
-			var append = document.querySelector(el.hash);
+			el.onePage.href = '#' + el.siteId;
+			var append = document.querySelector(el.onePage.href);
 			(onePageLoader.option.smoothScroll ? _initSmoothScroll(el) : false);
 			append.appendChild(content);
+			el.onePage.section = append;
 		});
 	}
 
 
 	function _handleByTagSpan(el, siteId, body) {
-		el.href = '#' + siteId;
+		el.href = location.href;
+		el.onePage.href = '#' + siteId;
 		el.hash = '#' + siteId;
 		(onePageLoader.option.smoothScroll ? _initSmoothScroll(el) : false);
 		var insert = document.getElementById(siteId);
 		move = body.children[0];
 		move.parentNode.removeChild(move);
 		insert.appendChild(move);
+		el.onePage.section = insert;
 		if (onePageLoader.smoothScroll) scrollToSpan = el;
 	}
 
@@ -238,7 +267,7 @@ var onePageLoader = function () {
 		var links = onePageLoader.sites;
 		_each(elements, function (i, el) {
 			_each(links, function (iLink, link) {
-				if (link.href.search(el.id) > -1) {
+				if (link.onePage.href.search(el.id) > -1) {
 					if (_isView(watch, el)) {
 						if (el.className.search('active') < 0) {
 							el.className += ' active';
@@ -310,6 +339,7 @@ var onePageLoader = function () {
 								}
 								window.setTimeout(function () {
 									_viewInSection();
+									if (_option.activateAnalytics) _pushAnalytics();
 									if (onePageLoader.option.scrollToAcivePage) _scrollToActivePage();
 									onePageLoader.complete();
 									if (onePageLoader.css.length > 0) {
@@ -332,6 +362,48 @@ var onePageLoader = function () {
 	}
 
 
+	function _pushAnalytics() {
+		var lastPush = location.href;
+
+		var track = function (page) {
+			for (var method in _option.analyticMethods) {
+				if (_option.analyticMethods[method].object != undefined && _option.analyticMethods[method].track != undefined) {
+					_option.analyticMethods[method].track(page);
+				}
+			}
+		};
+
+		var getPage = function (el) {
+
+			if (_option.analyticMethods.pushPageAs == 'hash') {
+				return el.onePage.href;
+			}
+
+			var page = el.href.split('/');
+			page = page.slice(3, page.length).join('/');
+
+			return page;
+		};
+
+		var control = function () {
+			_each(onePageLoader.sites, function (i, el) {
+				if (_isView(window, el.onePage.section) && el.href != lastPush) {
+					window.setTimeout(function () {
+						if (_isView(window, el.onePage.section) && el.href != lastPush) {
+							lastPush = el.href;
+							track(getPage(el));
+						}
+					}, _option.analyticMethods.timeOut);
+				}
+			})
+		};
+
+		_bind(window, 'scroll', function () {
+			control()
+		});
+	}
+
+
 	function _lastSectionMinHeight() {
 		var el = document.querySelectorAll('.' + onePageLoader.option.siteName + '_container');
 		var height = window.innerHeight || window.screen.availHeight;
@@ -342,7 +414,7 @@ var onePageLoader = function () {
 	function _scrollToActivePage() {
 		if (scrollToSpan) {
 			window.smoothScroll(
-				document.querySelector(scrollToSpan.hash),
+				document.querySelector(scrollToSpan.onePage.href),
 				_speed(onePageLoader.option.scrollDuration),
 				onePageLoader.option.scrollOffset,
 				onePageLoader.option.scrollEasing
@@ -354,7 +426,7 @@ var onePageLoader = function () {
 	function _initSmoothScroll(el) {
 		_bind(el, 'click', function (event) {
 			window.smoothScroll(
-				document.querySelector(el.hash),
+				document.querySelector(el.onePage.href),
 				_speed(onePageLoader.option.scrollDuration),
 				onePageLoader.option.scrollOffset,
 				onePageLoader.option.scrollEasing);
@@ -378,24 +450,44 @@ var onePageLoader = function () {
 	}
 
 
-	function _bind(el, type, callback, erase) {
-		if (el.attachEvent) {
-			el.attachEvent('on' + type, function (event) {
-				if (erase == false) {
-					event.returnValue = false;
-				}
-				callback.call(event, event);
-			});
+	function _bind(el, event, callback, erase) {
+		event = 'on' + event;
+
+		var push = {};
+
+		if (!el.handler) {
+			el.handler = {};
 		}
-		if (el.addEventListener) {
-			var wantsUntrusted = 'GeckoFix';
-			el.addEventListener(type, function (event) {
-				if (erase == false) {
-					event.preventDefault();
-				}
-				callback.call(event, event);
-			}, wantsUntrusted);
+
+		if (!el.handler[event]) {
+			el.handler[event] = {};
+			el.handler[event].events = [];
+			el.handler[event].fireEvent = function (ev) {
+				el.handler[event].events.forEach(function (event) {
+					if (event.erase === false) {
+						ev.preventDefault();
+						ev.returnValue = false;
+					}
+
+					event.function(ev);
+				});
+			};
+			if (el[event] && el[event] != null) {
+				push = {
+					function: el[event]
+				};
+				el.handler[event].events.push(push);
+			}
+			el[event] = function () {
+				el.handler[event].fireEvent(arguments[0]);
+			};
 		}
+
+		push = {
+			function: callback,
+			erase: erase
+		};
+		el.handler[event].events.push(push);
 	}
 
 
