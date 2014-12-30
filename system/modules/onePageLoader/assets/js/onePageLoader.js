@@ -17,6 +17,30 @@ var onePageLoader = function () {
 		watchOffsetY: 0,
 		minHeightLastSection: true,
 		scrollToAcivePage: true,
+		activateAnalytics: false,
+		analyticMethods: {
+			pushPageAs: 'href', /** or hash **/
+			timeOut: 1500, /** the time the user in the parting guests want to push the analysis code **/
+			ga: {
+				name: 'Google Analytics',
+				object: '_gaq',
+				track: function (page) {
+					if (window[_option.analyticMethods.ga.object] != undefined) {
+						window[_option.analyticMethods.ga.object].push(['_trackPageview', page]);
+					}
+				}
+
+			},
+			piwik: {
+				name: 'PIWIK Analytics',
+				object: 'piwikTracker',
+				track: function (page) {
+					if (window[_option.analyticMethods.piwik.object] != undefined) {
+						window[_option.analyticMethods.piwik.object].trackPageView(page);
+					}
+				}
+			}
+		},
 		complete: function () {
 		}
 	};
@@ -315,6 +339,7 @@ var onePageLoader = function () {
 								}
 								window.setTimeout(function () {
 									_viewInSection();
+									if (_option.activateAnalytics) _pushAnalytics();
 									if (onePageLoader.option.scrollToAcivePage) _scrollToActivePage();
 									onePageLoader.complete();
 									if (onePageLoader.css.length > 0) {
@@ -333,6 +358,48 @@ var onePageLoader = function () {
 					});
 				}, 500);
 			}
+		});
+	}
+
+
+	function _pushAnalytics() {
+		var lastPush = location.href;
+
+		var track = function (page) {
+			for (var method in _option.analyticMethods) {
+				if (_option.analyticMethods[method].object != undefined && _option.analyticMethods[method].track != undefined) {
+					_option.analyticMethods[method].track(page);
+				}
+			}
+		};
+
+		var getPage = function (el) {
+
+			if (_option.analyticMethods.pushPageAs == 'hash') {
+				return el.onePage.href;
+			}
+
+			var page = el.href.split('/');
+			page = page.slice(3, page.length).join('/');
+
+			return page;
+		};
+
+		var control = function () {
+			_each(onePageLoader.sites, function (i, el) {
+				if (_isView(window, el.onePage.section) && el.href != lastPush) {
+					window.setTimeout(function () {
+						if (_isView(window, el.onePage.section) && el.href != lastPush) {
+							lastPush = el.href;
+							track(getPage(el));
+						}
+					}, _option.analyticMethods.timeOut);
+				}
+			})
+		};
+
+		_bind(window, 'scroll', function () {
+			control()
 		});
 	}
 
@@ -383,24 +450,44 @@ var onePageLoader = function () {
 	}
 
 
-	function _bind(el, type, callback, erase) {
-		if (el.attachEvent) {
-			el.attachEvent('on' + type, function (event) {
-				if (erase == false) {
-					event.returnValue = false;
-				}
-				callback.call(event, event);
-			});
+	function _bind(el, event, callback, erase) {
+		event = 'on' + event;
+
+		var push = {};
+
+		if (!el.handler) {
+			el.handler = {};
 		}
-		if (el.addEventListener) {
-			var wantsUntrusted = 'GeckoFix';
-			el.addEventListener(type, function (event) {
-				if (erase == false) {
-					event.preventDefault();
-				}
-				callback.call(event, event);
-			}, wantsUntrusted);
+
+		if (!el.handler[event]) {
+			el.handler[event] = {};
+			el.handler[event].events = [];
+			el.handler[event].fireEvent = function (ev) {
+				el.handler[event].events.forEach(function (event) {
+					if (event.erase === false) {
+						ev.preventDefault();
+						ev.returnValue = false;
+					}
+
+					event.function(ev);
+				});
+			};
+			if (el[event] && el[event] != null) {
+				push = {
+					function: el[event]
+				};
+				el.handler[event].events.push(push);
+			}
+			el[event] = function () {
+				el.handler[event].fireEvent(arguments[0]);
+			};
 		}
+
+		push = {
+			function: callback,
+			erase: erase
+		};
+		el.handler[event].events.push(push);
 	}
 
 
