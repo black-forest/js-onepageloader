@@ -384,24 +384,44 @@ var onePageLoader = function () {
 	}
 
 
-	function _bind(el, type, callback, erase) {
-		if (el.attachEvent) {
-			el.attachEvent('on' + type, function (event) {
-				if (erase == false) {
-					event.returnValue = false;
-				}
-				callback.call(event, event);
-			});
+	function _bind(el, event, callback, erase) {
+		event = 'on' + event;
+
+		var push = {};
+
+		if (!el.handler) {
+			el.handler = {};
 		}
-		if (el.addEventListener) {
-			var wantsUntrusted = 'GeckoFix';
-			el.addEventListener(type, function (event) {
-				if (erase == false) {
-					event.preventDefault();
-				}
-				callback.call(event, event);
-			}, wantsUntrusted);
+
+		if (!el.handler[event]) {
+			el.handler[event] = {};
+			el.handler[event].events = [];
+			el.handler[event].fireEvent = function (ev) {
+				el.handler[event].events.forEach(function (event) {
+					if (event.erase === false) {
+						ev.preventDefault();
+						ev.returnValue = false;
+					}
+
+					event.function(ev);
+				});
+			};
+			if (el[event] && el[event] != null) {
+				push = {
+					function: el[event]
+				};
+				el.handler[event].events.push(push);
+			}
+			el[event] = function () {
+				el.handler[event].fireEvent(arguments[0]);
+			};
 		}
+
+		push = {
+			function: callback,
+			erase: erase
+		};
+		el.handler[event].events.push(push);
 	}
 
 
