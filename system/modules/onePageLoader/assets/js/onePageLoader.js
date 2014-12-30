@@ -313,11 +313,13 @@ var onePageLoader = function () {
 									if (onePageLoader.option.scrollToAcivePage) _scrollToActivePage();
 									onePageLoader.complete();
 									if (onePageLoader.css.length > 0) {
-										_each(onePageLoader.css, function (i, el) {
-											var css = document.createElement('link');
-											css.rel = el.rel;
-											css.href = el.href;
-											head.appendChild(css);
+										_each(onePageLoader.css, function (i, el) {console.log(document.querySelectorAll('link[href="'+el.href+'"]'));
+											if (document.querySelectorAll('link[href="'+el.href+'"]').length == 0) {
+												var css = document.createElement('link');
+												css.rel = el.rel;
+												css.href = el.href;
+												head.appendChild(css);
+											}
 										});
 									}
 								}, 200);
