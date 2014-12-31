@@ -254,59 +254,91 @@ var onePageLoader = function () {
 	}
 
 
-	function _viewInSection() {
-		/** TODO: ie 8 event fix **/
-		_bind(window, 'scroll', function () {
-			_setActive(window, document.querySelectorAll('.' + onePageLoader.option.siteName + '_container'));
-		});
+	function _addClass(el, string) {
+		el.classList != undefined ? el.classList.add(string) : fallback();
+
+		function fallback() {
+			var classList = el.className.split(' ');
+
+			var isSet = false;
+
+			if (classList.length > 0) {
+				_each(classList, function (i, el) {
+					if (el === string) isSet = true;
+				});
+			}
+
+			if (isSet === false) classList.push(string);
+
+			el.className = classList.join(' ');
+		}
 	}
 
 
-	function _setActive(watch, elements) {
-		/** TODO: ie 8 active fix **/
-		var links = onePageLoader.sites;
-		_each(elements, function (i, el) {
-			_each(links, function (iLink, link) {
-				if (link.onePage.href.search(el.id) > -1) {
-					if (_isView(watch, el)) {
-						if (el.className.search('active') < 0) {
-							el.className += ' active';
-							if (link.className.search('active') < 0) {
-								link.className += ' active';
-								link.parentNode.className += ' active';
-							}
-						}
-					} else {
-						if (el.className.search('active') > -1) {
-							el.className = el.className.replace(' active', '');
-							el.className = el.className.replace('active ', '');
-							el.className = el.className.replace('active', '');
-							if (link.className.search('active') > -1) {
-								link.className = link.className.replace('active', '');
-								link.parentNode.className = link.parentNode.className.replace(' active', '');
-								link.parentNode.className = link.parentNode.className.replace('active ', '');
-								link.parentNode.className = link.parentNode.className.replace('active', '');
-							}
-						}
+	function _removeClass(el, string) {
+		el.classList != undefined ? el.classList.remove(string) : fallback();
+
+		function fallback() {
+			var classList = el.className.split(' ');
+
+			if (classList.length > 0) {
+				_each(classList, function (i, el) {
+					if (el === string) classList.splice(i);
+				});
+			}
+
+			el.className = classList.join(' ');
+		}
+	}
+
+
+	function _viewInSection() {
+		var lastView = location.href;
+
+		_each(onePageLoader.sites, function (i, el) {
+			if (el.href === location.href) {
+				_addClass(el.onePage.section, 'active');
+			}
+		});
+
+		var control = function () {
+			_each(onePageLoader.sites, function (i, el) {
+				if (el.href != lastView) {
+					switch (_isView(el.onePage.section)) {
+						case true:
+							_addClass(el, 'active');
+							_addClass(el.parentNode, 'active');
+							_addClass(el.onePage.section, 'active');
+
+							lastView = el.href;
+							break;
+						case false:
+							_removeClass(el, 'active');
+							_removeClass(el.parentNode, 'active');
+							_removeClass(el.onePage.section, 'active');
+							break;
+						default:
+							break;
 					}
 				}
 			});
+		};
+
+		_bind(window, 'scroll', function () {
+			control();
 		});
 	}
 
 
-	function _isView(watch, el) {
-		/** TODO: fix FF 3.6 **/
-		var waScY = watch.scrollY || watch.screenTop,
-			waHeight = watch.innerHeight || watch.screen.availHeight,
+	function _isView(el) {
+		var windowScrollY = document.documentElement.scrollTop || window.pageYOffset || window.scrollY || 0,
 			elHeight = el.offsetHeight,
-			elScY = el.offsetTop;
+			elTop = el.offsetTop,
+			elBottom = elHeight + elTop;
 
-		waScY = waScY || 0;
+		windowScrollY -= _option.scrollOffset - _option.watchOffsetY;
 
-		waScY += onePageLoader.option.watchOffsetY;
-
-		return elScY <= waScY && elHeight + elScY >= waScY;
+		return elTop <= windowScrollY && elBottom >= windowScrollY;
 	}
 
 
@@ -387,9 +419,9 @@ var onePageLoader = function () {
 
 		var control = function () {
 			_each(onePageLoader.sites, function (i, el) {
-				if (_isView(window, el.onePage.section) && el.href != lastPush) {
+				if (_isView(el.onePage.section) && el.href != lastPush) {
 					window.setTimeout(function () {
-						if (_isView(window, el.onePage.section) && el.href != lastPush) {
+						if (_isView(el.onePage.section) && el.href != lastPush) {
 							lastPush = el.href;
 							track(getPage(el));
 						}
