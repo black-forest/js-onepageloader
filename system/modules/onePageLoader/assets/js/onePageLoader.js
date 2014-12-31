@@ -419,9 +419,9 @@ var onePageLoader = function () {
 
 		var control = function () {
 			_each(onePageLoader.sites, function (i, el) {
-				if (_isView(window, el.onePage.section) && el.href != lastPush) {
+				if (_isView(el.onePage.section) && el.href != lastPush) {
 					window.setTimeout(function () {
-						if (_isView(window, el.onePage.section) && el.href != lastPush) {
+						if (_isView(el.onePage.section) && el.href != lastPush) {
 							lastPush = el.href;
 							track(getPage(el));
 						}
