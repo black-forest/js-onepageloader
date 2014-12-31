@@ -230,6 +230,45 @@ var onePageLoader = function () {
 	}
 
 
+	function _addClass(el, string) {
+		el.classList != undefined ? el.classList.add(string) : fallback();
+
+		function fallback() {
+			var classList = el.className.split(' ');
+
+			var isSet = false;
+
+			if (classList.length > 0) {
+				_each(classList, function (i, el) {
+					if (el === string) isSet = true;
+				});
+			}
+
+			if (isSet === false) classList.push(string);
+
+			el.className = classList.join(' ');
+		}
+	}
+
+
+	function _removeClass(el, string) {
+		el.classList != undefined ? el.classList.remove(string) : fallback();
+
+		function fallback() {
+			var classList = el.className.split(' ');
+
+			if (classList.length > 0) {
+				_each(classList, function (i, el) {
+					if (el === string) classList.splice(i);
+				});
+			}
+
+			el.className = classList.join(' ');
+		}
+	}
+
+
+
 	function _viewInSection() {
 		/** TODO: ie 8 event fix **/
 		_bind(window, 'scroll', function () {
