@@ -268,44 +268,40 @@ var onePageLoader = function () {
 	}
 
 
-
 	function _viewInSection() {
-		/** TODO: ie 8 event fix **/
-		_bind(window, 'scroll', function () {
-			_setActive(window, document.querySelectorAll('.' + onePageLoader.option.siteName + '_container'));
+		var lastView = location.href;
+
+		_each(onePageLoader.sites, function (i, el) {
+			if (el.href === location.href) {
+				_addClass(el.onePage.section, 'active');
+			}
 		});
-	}
 
+		var control = function () {
+			_each(onePageLoader.sites, function (i, el) {
+				if (el.href != lastView) {
+					switch (_isView(window, el.onePage.section)) {
+						case true:
+							_addClass(el, 'active');
+							_addClass(el.parentNode, 'active');
+							_addClass(el.onePage.section, 'active');
 
-	function _setActive(watch, elements) {
-		/** TODO: ie 8 active fix **/
-		var links = onePageLoader.sites;
-		_each(elements, function (i, el) {
-			_each(links, function (iLink, link) {
-				if (link.onePage.href.search(el.id) > -1) {
-					if (_isView(watch, el)) {
-						if (el.className.search('active') < 0) {
-							el.className += ' active';
-							if (link.className.search('active') < 0) {
-								link.className += ' active';
-								link.parentNode.className += ' active';
-							}
-						}
-					} else {
-						if (el.className.search('active') > -1) {
-							el.className = el.className.replace(' active', '');
-							el.className = el.className.replace('active ', '');
-							el.className = el.className.replace('active', '');
-							if (link.className.search('active') > -1) {
-								link.className = link.className.replace('active', '');
-								link.parentNode.className = link.parentNode.className.replace(' active', '');
-								link.parentNode.className = link.parentNode.className.replace('active ', '');
-								link.parentNode.className = link.parentNode.className.replace('active', '');
-							}
-						}
+							lastView = el.href;
+							break;
+						case false:
+							_removeClass(el, 'active');
+							_removeClass(el.parentNode, 'active');
+							_removeClass(el.onePage.section, 'active');
+							break;
+						default:
+							break;
 					}
 				}
 			});
+		};
+
+		_bind(window, 'scroll', function () {
+			control();
 		});
 	}
 
