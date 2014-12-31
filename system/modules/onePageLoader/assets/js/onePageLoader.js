@@ -280,7 +280,7 @@ var onePageLoader = function () {
 		var control = function () {
 			_each(onePageLoader.sites, function (i, el) {
 				if (el.href != lastView) {
-					switch (_isView(window, el.onePage.section)) {
+					switch (_isView(el.onePage.section)) {
 						case true:
 							_addClass(el, 'active');
 							_addClass(el.parentNode, 'active');
@@ -306,18 +306,15 @@ var onePageLoader = function () {
 	}
 
 
-	function _isView(watch, el) {
-		/** TODO: fix FF 3.6 **/
-		var waScY = watch.scrollY || watch.screenTop,
-			waHeight = watch.innerHeight || watch.screen.availHeight,
+	function _isView(el) {
+		var windowScrollY = document.documentElement.scrollTop || window.pageYOffset || window.scrollY || 0,
 			elHeight = el.offsetHeight,
-			elScY = el.offsetTop;
+			elTop = el.offsetTop,
+			elBottom = elHeight + elTop;
 
-		waScY = waScY || 0;
+		windowScrollY -= _option.scrollOffset - _option.watchOffsetY;
 
-		waScY += onePageLoader.option.watchOffsetY;
-
-		return elScY <= waScY && elHeight + elScY >= waScY;
+		return elTop <= windowScrollY && elBottom >= windowScrollY;
 	}
 
 
