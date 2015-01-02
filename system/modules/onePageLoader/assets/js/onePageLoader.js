@@ -34,7 +34,7 @@ var onePageLoader = function () {
 
 	function _setOption(option) {
 		for (var prop in option) {
-			onePageLoader.option[prop] = option[prop];
+			_option[prop] = option[prop];
 		}
 		onePageLoader.scripts ? true : onePageLoader.scripts = [];
 		onePageLoader.css ? true : onePageLoader.css = [];
@@ -135,12 +135,12 @@ var onePageLoader = function () {
 
 	function _addContainer(i, el) {
 		if (!el.hash) {
-			var body = document.querySelector(onePageLoader.option.body),
-				siteId = _resolveString(onePageLoader.option.siteName + '_' + el.innerHTML.replace(' ', '_').toLowerCase()),
-				site = document.createElement(onePageLoader.option.siteElement);
+			var body = document.querySelector(_option.body),
+				siteId = _resolveString(_option.siteName + '_' + el.innerHTML.replace(' ', '_').toLowerCase()),
+				site = document.createElement(_option.siteElement);
 			el.siteId = siteId;
 			site.id = siteId;
-			site.className = onePageLoader.option.siteName + '_container';
+			site.className = _option.siteName + '_container';
 			body.appendChild(site);
 			switch (el.tagName) {
 				case 'SPAN':
@@ -183,18 +183,18 @@ var onePageLoader = function () {
 
 
 	function _handleDisplayBefore(body, site, siteId) {
-		if (onePageLoader.option.displayBefore) {
-			var firstEl = document.querySelector(onePageLoader.option.body + ' ' + onePageLoader.option.siteElement),
+		if (_option.displayBefore) {
+			var firstEl = document.querySelector(_option.body + ' ' + _option.siteElement),
 				parentEL = firstEl.parentNode;
 			move = body.children[0];
 			move.parentNode.removeChild(move);
-			site = document.createElement(onePageLoader.option.siteElement);
+			site = document.createElement(_option.siteElement);
 			siteId = location.href.split('/');
 			siteId = siteId[siteId.length - 1];
 			if (siteId.search('\/?') > -1) siteId = siteId.split('?')[0];
 			if (siteId.search('.') > -1) siteId = siteId.split('.')[0];
-			site.id = onePageLoader.option.siteName + '_' + siteId.replace('-', '_');
-			site.className = onePageLoader.option.siteName + '_container';
+			site.id = _option.siteName + '_' + siteId.replace('-', '_');
+			site.className = _option.siteName + '_container';
 			site.appendChild(move);
 			parentEL.insertBefore(site, firstEl);
 		} else {
@@ -209,7 +209,7 @@ var onePageLoader = function () {
 			if (complete) _loadScripts();
 			el.onePage.href = '#' + el.siteId;
 			var append = document.querySelector(el.onePage.href);
-			(onePageLoader.option.smoothScroll ? _initSmoothScroll(el) : false);
+			(_option.smoothScroll ? _initSmoothScroll(el) : false);
 			append.appendChild(content);
 			el.onePage.section = append;
 		});
@@ -220,7 +220,7 @@ var onePageLoader = function () {
 		el.href = location.href;
 		el.onePage.href = '#' + siteId;
 		el.hash = '#' + siteId;
-		(onePageLoader.option.smoothScroll ? _initSmoothScroll(el) : false);
+		(_option.smoothScroll ? _initSmoothScroll(el) : false);
 		var insert = document.getElementById(siteId);
 		move = body.children[0];
 		move.parentNode.removeChild(move);
@@ -339,7 +339,7 @@ var onePageLoader = function () {
 								console.error(el.innerHTML);
 							}
 							if (i == scriptsLength - 1 || scriptsLength == 0) {
-								if (onePageLoader.option.minHeightLastSection) {
+								if (_option.minHeightLastSection) {
 									_lastSectionMinHeight();
 									_bind(window, 'resize', function () {
 										_lastSectionMinHeight();
@@ -347,7 +347,7 @@ var onePageLoader = function () {
 								}
 								window.setTimeout(function () {
 									_viewInSection();
-									if (onePageLoader.option.scrollToAcivePage) _scrollToActivePage();
+									if (_option.scrollToAcivePage) _scrollToActivePage();
 									onePageLoader.complete();
 									if (onePageLoader.css.length > 0) {
 										_each(onePageLoader.css, function (i, el) {
@@ -370,9 +370,9 @@ var onePageLoader = function () {
 
 
 	function _lastSectionMinHeight() {
-		var el = document.querySelectorAll('.' + onePageLoader.option.siteName + '_container');
+		var el = document.querySelectorAll('.' + _option.siteName + '_container');
 		var height = window.innerHeight || window.screen.availHeight;
-		el[el.length - 1].style.minHeight = height + onePageLoader.option.scrollOffset + 'px';
+		el[el.length - 1].style.minHeight = height + _option.scrollOffset + 'px';
 	}
 
 
@@ -380,9 +380,9 @@ var onePageLoader = function () {
 		if (scrollToSpan) {
 			window.smoothScroll(
 				document.querySelector(scrollToSpan.onePage.href),
-				_speed(onePageLoader.option.scrollDuration),
-				onePageLoader.option.scrollOffset,
-				onePageLoader.option.scrollEasing
+				_speed(_option.scrollDuration),
+				_option.scrollOffset,
+				_option.scrollEasing
 			);
 		}
 	}
@@ -392,9 +392,9 @@ var onePageLoader = function () {
 		_bind(el, 'click', function (event) {
 			window.smoothScroll(
 				document.querySelector(el.onePage.href),
-				_speed(onePageLoader.option.scrollDuration),
-				onePageLoader.option.scrollOffset,
-				onePageLoader.option.scrollEasing);
+				_speed(_option.scrollDuration),
+				_option.scrollOffset,
+				_option.scrollEasing);
 		}, false);
 	}
 
@@ -480,7 +480,7 @@ var onePageLoader = function () {
 				});
 				requests++;
 				(onePageLoader.sites.length == requests ? complete = true : false);
-				callback.call(html.querySelector(onePageLoader.option.body).children[0], el, html.querySelector(onePageLoader.option.body).children[0], complete);
+				callback.call(html.querySelector(_option.body).children[0], el, html.querySelector(_option.body).children[0], complete);
 			}
 		};
 		request.open('GET', el.href);
@@ -545,7 +545,7 @@ var onePageLoader = function () {
 
 
 		complete: function () {
-			onePageLoader.option.complete();
+			_option.complete();
 		},
 
 
