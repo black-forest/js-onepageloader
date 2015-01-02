@@ -36,8 +36,13 @@ var onePageLoader = function () {
 		for (var prop in option) {
 			_option[prop] = option[prop];
 		}
+
 		onePageLoader.scripts ? true : onePageLoader.scripts = [];
 		onePageLoader.css ? true : onePageLoader.css = [];
+
+		typeof _option.body === 'string' ? _option.body = document.body.querySelectorAll(_option.body) : '';
+
+		_option.body.selector === undefined ? _option.body.selector = _getSelector(_option.body) : '';
 	}
 
 
@@ -183,17 +188,16 @@ var onePageLoader = function () {
 
 	function _addContainer(i, el) {
 		if (!el.hash) {
-			var body = document.querySelector(_option.body),
-				siteId = _resolveString(_option.siteName + '_' + el.innerHTML.replace(' ', '_').toLowerCase()),
+			var siteId = _resolveString(_option.siteName + '_' + el.innerHTML.replace(' ', '_').toLowerCase()),
 				site = document.createElement(_option.siteElement);
 			el.siteId = siteId;
 			site.id = siteId;
 			site.className = _option.siteName + '_container';
-			body.appendChild(site);
+			_option.body[0].appendChild(site);
 			switch (el.tagName) {
 				case 'SPAN':
 					el.onePage = {};
-					_handleByTagSpan(el, siteId, body);
+					_handleByTagSpan(el, siteId, _option.body[0]);
 					break;
 				case 'A':
 					el.onePage = {};
@@ -203,7 +207,7 @@ var onePageLoader = function () {
 					break;
 			}
 			if (i == onePageLoader.sites.length - 1 && typeof move != 'object') {
-				_handleDisplayBefore(body, site, siteId);
+				_handleDisplayBefore(_option.body[0], site, siteId);
 			}
 		} else {
 			//onePageLoader.sites.splice(i, 1);
@@ -232,7 +236,7 @@ var onePageLoader = function () {
 
 	function _handleDisplayBefore(body, site, siteId) {
 		if (_option.displayBefore) {
-			var firstEl = document.querySelector(_option.body + ' ' + _option.siteElement),
+			var firstEl = document.querySelector(_option.body.selector + ' ' + _option.siteElement),
 				parentEL = firstEl.parentNode;
 			move = body.children[0];
 			move.parentNode.removeChild(move);
@@ -528,7 +532,7 @@ var onePageLoader = function () {
 				});
 				requests++;
 				(onePageLoader.sites.length == requests ? complete = true : false);
-				callback.call(html.querySelector(_option.body).children[0], el, html.querySelector(_option.body).children[0], complete);
+				callback.call(html.querySelector(_option.body.selector).children[0], el, html.querySelector(_option.body.selector).children[0], complete);
 			}
 		};
 		request.open('GET', el.href);
