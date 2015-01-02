@@ -55,6 +55,54 @@ var onePageLoader = function () {
 	}
 
 
+	function _getSelector(node) {
+
+		var path;
+
+		while (node.length) {
+
+
+			var realNode = node[0],
+				name = (
+
+					// IE9 and non-IE
+				realNode.localName ||
+
+					// IE <= 8
+				realNode.tagName || realNode.nodeName
+
+				);
+
+			// on IE8, nodeName is '#document' at the top level, but we don't need that
+			if (!name || name == '#document') break;
+
+			name = name.toLowerCase();
+
+			if (realNode.id) {
+
+				// As soon as an id is found, there's no need to specify more.
+				return name + '#' + realNode.id + (path ? '>' + path : '');
+			}
+
+			var parent = realNode.parentNode;
+			var siblings = [];
+			_each(parent.children, function(i ,element) {
+				if (element.tagName == name) {
+					siblings.push(element);
+				}
+			});
+
+			if (siblings.length > 1) name += ':eq(' + siblings.index(node) + ')';
+
+			path = name + (path ? '>' + path : '');
+
+			node = parent;
+		}
+
+		return path;
+	}
+
+
 	function _setSites(obj, pos) {
 		if (!pos) pos = 'main';
 		var items = [],
