@@ -280,14 +280,11 @@ var onePageLoader = function () {
 
 		function fallback() {
 			var classList = el.className.split(' ');
-
 			var isSet = false;
 
-			if (classList.length > 0) {
-				_each(classList, function (i, el) {
-					if (el === string) isSet = true;
-				});
-			}
+			_each(classList, function (i, el) {
+				if (el === string) isSet = true;
+			});
 
 			isSet === false ? classList.push(string) : '';
 
@@ -301,14 +298,13 @@ var onePageLoader = function () {
 
 		function fallback() {
 			var classList = el.className.split(' ');
+			var newClassList = [];
 
-			if (classList.length > 0) {
-				_each(classList, function (i, el) {
-					el === string ? classList.splice(i) : '';
-				});
-			}
+			_each(classList, function (i, el) {
+				el != string ? newClassList.push(el) : '';
+			});
 
-			el.className = classList.join(' ');
+			el.className = newClassList.join(' ');
 		}
 	}
 
@@ -472,18 +468,18 @@ var onePageLoader = function () {
 			el.handler[event] = {};
 			el.handler[event].events = [];
 			el.handler[event].fireEvent = function (ev) {
-				el.handler[event].events.forEach(function (event) {
+				_each(el.handler[event].events, function (i, event) {
 					if (event.erase === false) {
 						ev.preventDefault();
 						ev.returnValue = false;
 					}
 
-					event.function(ev);
+					event.method(ev);
 				});
 			};
 			if (el[event] && el[event] != null) {
 				push = {
-					function: el[event]
+					method: el[event]
 				};
 				el.handler[event].events.push(push);
 			}
@@ -493,7 +489,7 @@ var onePageLoader = function () {
 		}
 
 		push = {
-			function: callback,
+			method: callback,
 			erase: erase
 		};
 		el.handler[event].events.push(push);
