@@ -148,10 +148,10 @@ var onePageLoader = function () {
 
 	function _parseSites(obj) {
 		var sites = [];
-		_each(obj, function (i, el) {
-			el.href && !el.hash ? sites.push(el) : '';
+		_each(obj, function () {
+			this.href && !this.hash ? sites.push(this) : '';
 
-			el.tagName === 'SPAN' && el.className.search('active') > -1 ? sites.push(el) : '';
+			this.tagName === 'SPAN' && this.className.search('active') > -1 ? sites.push(this) : '';
 		});
 		return sites;
 	}
@@ -168,8 +168,8 @@ var onePageLoader = function () {
 		 }
 		 }*/
 		if (arr = onePageLoader.mainSites) {
-			onePageLoader.each(arr, function (i, el) {
-				obj.push(el);
+			_each(arr, function () {
+				obj.push(this);
 			});
 		}
 		/** TODO: Sites after **/
@@ -225,7 +225,8 @@ var onePageLoader = function () {
 		};
 
 		for (var prop in areaReplace) {
-			string = string.replace(areaReplace[prop][0], areaReplace[prop][1]);
+			var row = areaReplace[prop];
+			string = string.replace(row[0], row[1]);
 		}
 
 		return string;
@@ -337,11 +338,11 @@ var onePageLoader = function () {
 
 			if (!_cache.document[type]) {
 				_cache.document[type] = [];
-				_each(document.getElementsByTagName(type), function (i, el) {
-					var prop = el.href || el.src || el.innerHTML;
+				_each(document.getElementsByTagName(type), function () {
+					var prop = this.href || this.src || this.innerHTML;
 					var hash = md5(prop);
 
-					_cache.document[type][hash] = el;
+					_cache.document[type][hash] = this;
 					_cache.document[type].length++;
 				});
 			}
@@ -600,8 +601,8 @@ var onePageLoader = function () {
 			var classList = el.className.split(' ');
 			var isSet = false;
 
-			_each(classList, function (i, el) {
-				if (el === string) isSet = true;
+			_each(classList, function () {
+				if (this === string) isSet = true;
 			});
 
 			isSet === false ? classList.push(string) : '';
@@ -618,8 +619,8 @@ var onePageLoader = function () {
 			var classList = el.className.split(' ');
 			var newClassList = [];
 
-			_each(classList, function (i, el) {
-				el != string ? newClassList.push(el) : '';
+			_each(classList, function () {
+				this != string ? newClassList.push(this) : '';
 			});
 
 			el.className = newClassList.join(' ');
@@ -630,25 +631,25 @@ var onePageLoader = function () {
 	function _viewInSection() {
 		var lastView = location.href;
 
-		_each(onePageLoader.sites, function (i, el) {
-			el.href === location.href ? _addClass(el.onePage.section, 'active') : '';
+		_each(onePageLoader.sites, function () {
+			this.href === location.href ? _addClass(this.onePage.section, 'active') : '';
 		});
 
 		var control = function () {
-			_each(onePageLoader.sites, function (i, el) {
-				if (el.href != lastView) {
-					switch (_isView(el.onePage.section)) {
+			_each(onePageLoader.sites, function () {
+				if (this.href != lastView) {
+					switch (_isView(this.onePage.section)) {
 						case true:
-							_addClass(el, 'active');
-							_addClass(el.parentNode, 'active');
-							_addClass(el.onePage.section, 'active');
+							_addClass(this, 'active');
+							_addClass(this.parentNode, 'active');
+							_addClass(this.onePage.section, 'active');
 
-							lastView = el.href;
+							lastView = this.href;
 							break;
 						case false:
-							_removeClass(el, 'active');
-							_removeClass(el.parentNode, 'active');
-							_removeClass(el.onePage.section, 'active');
+							_removeClass(this, 'active');
+							_removeClass(this.parentNode, 'active');
+							_removeClass(this.onePage.section, 'active');
 							break;
 						default:
 							break;
@@ -696,7 +697,7 @@ var onePageLoader = function () {
 
 
 	function _initSmoothScroll(el) {
-		_bind(el, 'click', function (event) {
+		_bind(el, 'click', function () {
 			window.smoothScroll(
 				document.querySelector(el.onePage.href),
 				_speed(_option.scrollDuration),
