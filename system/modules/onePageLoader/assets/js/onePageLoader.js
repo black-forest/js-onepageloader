@@ -877,7 +877,7 @@ var onePageLoader = function () {
 
 
 	function _init() {
-		if (!onePageLoader.sites) _getSites();
+		_getSites();
 		_load();
 	}
 
