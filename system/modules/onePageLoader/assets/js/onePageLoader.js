@@ -751,7 +751,7 @@ var onePageLoader = function () {
 		};
 
 		var control = function () {
-			_each(onePageLoader.sites, function (i, el) {
+			_each(_cache.sites, function (i, el) {
 				if (_isView(el.onePage.section) && el.href != lastPush) {
 					window.setTimeout(function () {
 						if (_isView(el.onePage.section) && el.href != lastPush) {
