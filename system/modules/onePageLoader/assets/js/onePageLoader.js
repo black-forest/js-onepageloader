@@ -17,7 +17,6 @@ var onePageLoader = function () {
 		watchOffsetY: 0,
 		minHeightLastSection: true,
 		scrollToActivePage: true,
-		completeTimeOut: 2000,
 		complete: function () {
 		}
 	};
@@ -229,11 +228,11 @@ var onePageLoader = function () {
 					this ? _parseSources(this) : '';
 				});
 
-				_each(html.getElementsByTagName('link'), function () {
+				_each(html.getElementsByTagName('style'), function () {
 					this ? _parseSources(this) : '';
 				});
 
-				_each(html.getElementsByTagName('style'), function () {
+				_each(html.getElementsByTagName('link'), function () {
 					this ? _parseSources(this) : '';
 				});
 
@@ -294,19 +293,11 @@ var onePageLoader = function () {
 			body;
 
 		_cache.loadSources && _cache.loadSources.script ? control(_cache.loadSources.script) : '';
-		_cache.loadSources && _cache.loadSources.link ? control(_cache.loadSources.link) : '';
 		_cache.loadSources && _cache.loadSources.style ? control(_cache.loadSources.style) : '';
+		_cache.loadSources && _cache.loadSources.link ? control(_cache.loadSources.link) : '';
 
-		window.setTimeout(function () {
-			if (_cache.insert && _cache.insert.body && _cache.insert.body.length > 0) {
-				_each(_cache.insert.body, function () {
-					this.tagName === 'STYLE' || this.tagName === 'LINK' ? insertHead(this) : '';
-					this.tagName === 'SCRIPT' ? body.appendChild(this) : '';
-				});
+		interval();
 
-				onePageLoader.complete();
-			}
-		}, _option.completeTimeOut);
 
 		function control(sources) {
 
@@ -315,7 +306,7 @@ var onePageLoader = function () {
 					var row = document.importNode(sources[source], true);
 
 					row.src || row.href ? insertHead(row) : '';
-					!row.src || row.src === '' && !row.href ? insertBody(row) : '';
+					!row.src && !row.href ? collectBody(row) : '';
 				}
 			}
 		}
@@ -328,12 +319,73 @@ var onePageLoader = function () {
 		}
 
 
-		function insertBody(insert) {
+		function collectBody(insert) {
 			body = body || document.getElementsByTagName('body')[0];
+			var type = insert.tagName.toLowerCase();
 
 			_cache.insert = _cache.insert || {};
-			_cache.insert.body = _cache.insert.body || [];
-			_cache.insert.body.push(insert);
+			_cache.insert.body = _cache.insert.body || {};
+			_cache.insert.body[type] = _cache.insert.body[type] || [];
+			_cache.insert.body[type].push(insert);
+		}
+
+
+		function insertBody() {
+			if (_cache.insert && _cache.insert.body) {
+				_cache.insert.body.style && _cache.insert.body.style.length > 0 ? control(_cache.insert.body.style) : '';
+				_cache.insert.body.link && _cache.insert.body.link.length > 0 ? control(_cache.insert.body.link) : '';
+				_cache.insert.body.script && _cache.insert.body.script.length > 0 ? control(_cache.insert.body.script) : '';
+
+				onePageLoader.complete();
+			} else {
+				onePageLoader.complete();
+			}
+
+
+			function control(elements) {
+				_each(elements, function (i, el) {
+					el.tagName === 'STYLE' || el.tagName === 'LINK' ? insertHead(el) : '';
+					el.tagName === 'SCRIPT' ? eval(el.text) : '';
+				});
+			}
+		}
+
+
+		function interval() {
+			isNaN(loadDurration().returnTime()) ? loop() : stop();
+
+
+			function loop() {
+				setTimeout(function () {
+					interval();
+				}, 500);
+			}
+
+
+			function stop() {
+				var time = loadDurration().returnTime();
+
+				time > 19999 ? time /= 10 : '';
+				time > 9999 ? time /= 10 : '';
+				time > 7999 ? time /= 4 : '';
+
+				setTimeout(function () {
+					insertBody();
+				}, time);
+			}
+		}
+
+
+		function clone(el) {
+			var element = document.createElement(el.tagName);
+
+			el.src ? element.src = el.src : '';
+			el.href ? element.href = el.href : '';
+			el.text ? element.text = el.text : '';
+
+			element.async ? element.async = true : '';
+
+			return element;
 		}
 	}
 
@@ -810,8 +862,10 @@ var onePageLoader = function () {
 
 	function _complete() {
 		_bind(window, 'load', function () {
+
 			if (_option.minHeightLastSection) {
 				_lastSectionMinHeight();
+
 				_bind(window, 'resize', function () {
 					_lastSectionMinHeight();
 				})
@@ -827,10 +881,10 @@ var onePageLoader = function () {
 	return {
 		option: _setDefaultOption(),
 		init: function (obj, option) {
+			_complete();
 			_setOption(option);
 			_setSites(obj);
 			_init();
-			_complete();
 		},
 
 
@@ -853,3 +907,42 @@ var onePageLoader = function () {
 		}
 	}
 }();
+
+
+var loadDurration = function () {
+	function _startTime() {
+		loadDurration.start = new Date().getTime();
+	}
+
+
+	function _endTime() {
+		loadDurration.end = new Date().getTime();
+	}
+
+
+	function _returnDuration() {
+		return loadDurration.end - loadDurration.start;
+	}
+
+
+	return {
+		init: function () {
+			_startTime();
+			window.onload = function () {
+				loadDurration().endTime();
+			}
+		},
+
+
+		endTime: function () {
+			_endTime();
+		},
+
+
+		returnTime: function () {
+			return _returnDuration();
+		}
+	}
+};
+
+loadDurration().init();
