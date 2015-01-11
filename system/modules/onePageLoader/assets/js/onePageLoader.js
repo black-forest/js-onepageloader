@@ -744,8 +744,8 @@ var onePageLoader = function () {
 				return el.onePage.href;
 			}
 
-			var page = el.href.split('/');
-			page = page.slice(3, page.length).join('/');
+			var page = el.href || location.href;
+			page = page.split('/').slice(3, page.length).join('/');
 
 			return page;
 		};
