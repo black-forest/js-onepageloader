@@ -23,7 +23,6 @@ var onePageLoader = function () {
 
 	var requests = 1,
 		scrollToSpan,
-		move,
 		_cache = [];
 
 
