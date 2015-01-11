@@ -303,7 +303,9 @@ var onePageLoader = function () {
 
 			if (sources.length > 0) {
 				for (var source in sources) {
-					var row = document.importNode(sources[source], true);
+					var row;
+
+					row = clone(sources[source]);
 
 					row.src || row.href ? insertHead(row) : '';
 					!row.src && !row.href ? collectBody(row) : '';
@@ -815,23 +817,30 @@ var onePageLoader = function () {
 		var request;
 		var complete = false;
 
-		if (window.ActiveXObject) {
-			request = new ActiveXObject('Microsoft.XMLHTTP');
-		} else {
-			request = new XMLHttpRequest();
-		}
+		request = makeHttpObject();
+
+		request.async = true;
 
 		request.onreadystatechange = function () {
 			if (request.readyState === 4) {
-				var html = document.createElement('div');
-				html.innerHTML = request.responseText;
+				var html;
+				request.response && request.response.childNodes ? html = request.response : create();
 
 				requests++;
 
 				onePageLoader.sites.length === requests ? complete = true : false;
 				callback.call(html, el, html, complete);
+
+
+				function create() {
+					html = document.createElement('div');
+					html.innerHTML = request.responseText;
+				}
 			}
 		};
+
+		request.responseType ? request.responseType = "document" : '';
+
 		request.open('GET', parseUrl(el));
 		request.send();
 
@@ -840,6 +849,27 @@ var onePageLoader = function () {
 			el.href = el.href.replace(el.hash, '');
 
 			return el.href;
+		}
+
+
+		function makeHttpObject() {
+			try {
+				return new XMLHttpRequest();
+			}
+			catch (error) {
+			}
+			try {
+				return new ActiveXObject("Msxml2.XMLHTTP");
+			}
+			catch (error) {
+			}
+			try {
+				return new ActiveXObject("Microsoft.XMLHTTP");
+			}
+			catch (error) {
+			}
+
+			throw new Error("Could not create HTTP request object.");
 		}
 	}
 
