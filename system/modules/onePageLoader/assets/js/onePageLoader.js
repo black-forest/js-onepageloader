@@ -403,7 +403,7 @@ var onePageLoader = function () {
 				_cache.document[type] = [];
 				_each(document.getElementsByTagName(type), function () {
 					var prop = this.href || this.src || this.innerHTML;
-					var hash = md5(prop);
+					var hash = _md5(prop);
 
 					_cache.document[type][hash] = this;
 					_cache.document[type].length++;
@@ -417,7 +417,7 @@ var onePageLoader = function () {
 		}
 
 		var search = source.href || source.src || source.innerHTML;
-		var hash = md5(search);
+		var hash = _md5(search);
 
 
 		if (!_cache.document[type][hash] && !_cache.loadSources[type][hash]) {
@@ -427,7 +427,7 @@ var onePageLoader = function () {
 	}
 
 
-	function md5(string) {
+	function _md5(string) {
 		function RotateLeft(lValue, iShiftBits) {
 			return (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits));
 		}
