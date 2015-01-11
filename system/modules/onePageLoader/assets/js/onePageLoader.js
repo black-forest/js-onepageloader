@@ -33,9 +33,6 @@ var onePageLoader = function () {
 			_option[prop] = option[prop];
 		}
 
-		onePageLoader.scripts ? true : onePageLoader.scripts = [];
-		onePageLoader.css ? true : onePageLoader.css = [];
-
 		typeof _option.body === 'string' ? _option.body = document.body.querySelectorAll(_option.body) : '';
 
 		_option.body.selector === undefined ? _option.body.selector = _getSelector(_option.body) : '';
