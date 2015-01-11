@@ -169,7 +169,7 @@ var onePageLoader = function () {
 		 obj.push(onePageLoader.sitesAfter[i]);
 		 }
 		 }*/
-		onePageLoader.sites = obj;
+		_cache.sites = obj;
 
 
 		function addOnePage(el) {
@@ -205,7 +205,7 @@ var onePageLoader = function () {
 
 			el.tagName === 'A' ? control() : '';
 
-			if (i === onePageLoader.sites.length - 1 && typeof move != 'object') {
+			if (i === _cache.sites.length - 1 && typeof move != 'object') {
 				//_handleDisplayBefore(_option.body[0], site, siteId);
 			}
 		} else {
@@ -671,12 +671,12 @@ var onePageLoader = function () {
 	function _viewInSection() {
 		var lastView = location.href;
 
-		_each(onePageLoader.sites, function () {
+		_each(_cache.sites, function () {
 			this.href === location.href ? _addClass(this.onePage.section, 'active') : '';
 		});
 
 		var control = function () {
-			_each(onePageLoader.sites, function () {
+			_each(_cache.sites, function () {
 				if (this.href != lastView) {
 					switch (_isView(this.onePage.section)) {
 						case true:
@@ -819,7 +819,7 @@ var onePageLoader = function () {
 
 				requests++;
 
-				onePageLoader.sites.length === requests ? complete = true : false;
+				_cache.sites.length === requests ? complete = true : false;
 				callback.call(html, el, html, complete);
 
 
@@ -866,7 +866,7 @@ var onePageLoader = function () {
 
 
 	function _load() {
-		_each(onePageLoader.sites, function (i, el) {
+		_each(_cache.sites, function (i, el) {
 			if (!el.loaded) {
 				el.loaded = true;
 				_addContainer(i, el);
