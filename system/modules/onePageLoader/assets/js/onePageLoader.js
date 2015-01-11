@@ -9,7 +9,6 @@ var onePageLoader = function () {
 		displayBefore: true, /** display Sites before if this without Sites **/
 		activePage: '', /** active Page prop **/
 		scrollEasing: 'easeInOutQuint', /** easing for Smooth Scroll **/
-		mainSites: '', /** add main Sites **/
 		sitesBefore: '', /** add Sites before **/ /** TODO: add Sites Before **/
 		sitesAfter: '', /** add Sites after **/ /** TODO: add Sites After **/
 		inViewSection: '', /** TODO: inView Section **/
@@ -131,7 +130,7 @@ var onePageLoader = function () {
 				onePageLoader.sitesAfter = _parseSites(obj);
 				break;
 			default :
-				onePageLoader.mainSites = _parseSites(obj.querySelectorAll('a, span'));
+				_cache.mainSites = _parseSites(obj.querySelectorAll('a, span'));
 		}
 		return false;
 	}
@@ -158,7 +157,7 @@ var onePageLoader = function () {
 		 for (var item in items) obj.push(items[item]);
 		 }
 		 }*/
-		if (arr = onePageLoader.mainSites) {
+		if (arr = _cache.mainSites) {
 			_each(arr, function () {
 				obj.push(addOnePage(this));
 			});
