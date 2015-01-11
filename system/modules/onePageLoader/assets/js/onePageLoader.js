@@ -28,11 +28,6 @@ var onePageLoader = function () {
 		_cache = [];
 
 
-	function _setDefaultOption() {
-		return _option;
-	}
-
-
 	function _setOption(option) {
 		for (var prop in option) {
 			_option[prop] = option[prop];
@@ -909,7 +904,6 @@ var onePageLoader = function () {
 
 
 	return {
-		option: _setDefaultOption(),
 		init: function (obj, option) {
 			_complete();
 			_setOption(option);
