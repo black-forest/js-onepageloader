@@ -813,6 +813,11 @@ var onePageLoader = function () {
 
 		request.onreadystatechange = function () {
 			if (request.readyState === 4) {
+				function create() {
+					html = document.createElement('div');
+					html.innerHTML = request.responseText;
+				}
+
 				var html;
 				request.response && request.response.childNodes ? html = request.response : create();
 
@@ -820,12 +825,6 @@ var onePageLoader = function () {
 
 				_cache.sites.length === requests ? complete = true : false;
 				callback.call(html, el, html, complete);
-
-
-				function create() {
-					html = document.createElement('div');
-					html.innerHTML = request.responseText;
-				}
 			}
 		};
 
