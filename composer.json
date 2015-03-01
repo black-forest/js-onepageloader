@@ -1,0 +1,41 @@
+{
+  "name": "black-forest/js-onepageloader",
+  "description": "A JavaScript library to merge individual pages to an OnPage",
+  "keywords": [
+    "javascript",
+    "frontend",
+    "onepage",
+    "framework"
+  ],
+  "type": "library",
+  "homepage": "",
+  "license": "LGPL-3.0+",
+  "authors": [
+    {
+      "name": "Sven Baumann",
+      "email": "baumann.sv@gmail.com",
+      "homepage": "",
+      "role": "Developer"
+    },
+    {
+      "name": "Dominik Tomasi",
+      "email": "dominik.tomasi@gmail.com",
+      "homepage": "",
+      "role": "Developer"
+    }
+  ],
+  "support": {
+    "email": "baumann.sv@gmail.com",
+    "issues": "https://github.com/black-forest/js-onepageloader/issues",
+    "wiki": "https://github.com/black-forest/js-onepageloader/wiki",
+    "irc": "irc://irc.freenode.org/contao.dev",
+    "source": "https://github.com/black-forest/js-onepageloader"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "extra": {
+    "branch-alias": {
+      "dev-develop": "1.0.x-dev"
+    }
+  }
+}
